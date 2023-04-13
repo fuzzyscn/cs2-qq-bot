@@ -7,3 +7,5 @@
 ### 依赖项目地址：
 - https://github.com/Mrs4s/go-cqhttp
 - https://github.com/gorcon/rcon-cli
+### 演示图片：
+![image](https://github.com/fuzzyscn/cs2-qq-bot/blob/main/20230413182341.png?raw=true)
