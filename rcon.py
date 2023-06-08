@@ -1,7 +1,7 @@
 import os
 import time
 import json
-import websocket#先用 pip install websocket-client 安装websocket模块 QQ机器人 正向WS服务器监听地址：6700 代码108行可以改
+import websocket#先用 pip install websocket-client 安装websocket模块 QQ机器人 正向WS服务器监听地址：6700 代码115行可以改
 import threading
 
 ip = '127.0.0.1'
@@ -42,18 +42,21 @@ def on_qq_message(ws, message):
             string = ''
             if response:
                 string = ' 返回：'+response
-            sendJsonToQQun('管理员：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
+            sendJsonToQQ('管理员：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
         elif msg['message_type'] == 'group':
-            if msg['raw_message'].find('服务器') != -1 or msg['raw_message'].find('在线') != -1 or msg['raw_message'].find('人数') != -1:#监测群消息的关键词
+            if msg['raw_message'].find('服务器') != -1 or msg['raw_message'].find('查询') != -1 or msg['raw_message'].find('在线') != -1 or msg['raw_message'].find('人数') != -1:#监测群消息的关键词
                 response = os.popen('rcon.exe -a '+ip+':27015 -p '+password+' status').read()
                 lines = response.split('\n')
                 lineNum = len(lines)
                 BotNum = 0
+                NoChan = 0
                 PlayerNum = 0
                 if lineNum > 23:
                     for i in range(21, lineNum-2):
                         if lines[i].find('BOT') != -1:
                             BotNum = BotNum + 1
+                        elif lines[i].find('[NoChan]') != -1:
+                            NoChan = NoChan + 1
                         else:
                             PlayerNum = PlayerNum + 1
                             
@@ -71,35 +74,39 @@ def on_qq_open(ws):
     print('\n ### QQ机器人连接成功啦！###')
     
 def main():
-    msg = input("更换命令 默认status 例如:bot_add bot_kick:")
+    msg = input("更换命令 例如:bot_add bot_kick:")
     if msg != '':
         msg = msg.replace(' ', '_')
         response = os.popen('rcon.exe -a '+ip+':27015 -p '+password+' '+msg).read()
         string = ''
         if response:
             string = ' 返回：'+response
-        sendJsonToQQun('后台使用了命令：'+msg+string)
+        sendJsonToQQ('后台使用了命令：'+msg+string)
     main()
     
 def check_status_forever():
     command = " status"
     while True:
-        time.sleep(60)#检测间隔时间一分钟 代码120 121行开启此检测线程
+        time.sleep(120)#检测间隔时间一分钟 代码127 128行开启此检测线程
         response = os.popen('rcon.exe -a '+ip+':27015 -p '+password+command).read()
         lines = response.split('\n')
         lineNum = len(lines)
         BotNum = 0
+        NoChan = 0
         PlayerNum = 0
         if lineNum > 23:
             for i in range(21, lineNum-2):
                 if lines[i].find('BOT') != -1:
                     BotNum = BotNum + 1
+                elif lines[i].find('[NoChan]') != -1:
+                    NoChan = NoChan + 1
                 else:
                     PlayerNum = PlayerNum + 1
-                        
-            sendJsonToQQun('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！')
+                    
+            if PlayerNum >= 1:
+                sendJsonToQQun('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！')
         else:
-            sendJsonToQQun('服务器当前无人在线！')
+            #sendJsonToQQ('服务器当前无人在线！')
             playerLine = lines[11].split(',')
             print('当前假的在线' + playerLine[0].replace('players', '玩家').replace('humans', ''))#不确定是否还有用 先留着
     
@@ -117,7 +124,7 @@ if __name__ == '__main__':
     ThreadWsQQ = threading.Thread(target=runWsQQ)
     ThreadWsQQ.start()
     
-    #ThreadCheckGtaSev = threading.Thread(target=check_status_forever)
-    #ThreadCheckGtaSev.start()
+    ThreadCheckGtaSev = threading.Thread(target=check_status_forever)
+    ThreadCheckGtaSev.start()
     
     main()
