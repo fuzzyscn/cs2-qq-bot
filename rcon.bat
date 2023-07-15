@@ -1,3 +1,3 @@
 @echo off
-python "rcon.py" %*
+python "pyrcon.py" %*
 pause
