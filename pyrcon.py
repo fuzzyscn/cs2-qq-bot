@@ -10,7 +10,7 @@ pw = 'rconpassword'#rcon密码
 
 qqNum = 2561417364
 qqQunNum = 314498023
-serverIp = 'fuzzys.f3322.net'
+serverIp = 'fuzzys点f3322点net'
 
 def sendJsonToQQ(msg):
     msgData = {
@@ -47,7 +47,7 @@ def on_qq_message(ws, message):
                     string = ' 返回：' + response
                 sendJsonToQQ('管理员：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
         elif msg['message_type'] == 'group':
-            if msg['raw_message'].find('服务器') != -1 or msg['raw_message'].find('查询') != -1 or msg['raw_message'].find('在线') != -1 or msg['raw_message'].find('人数') != -1:#监测群消息的关键词
+            if msg['raw_message'].find('服务器') != -1 or msg['raw_message'].find('查询') != -1 or msg['raw_message'].find('ip') != -1 or msg['raw_message'].find('人数') != -1:#监测群消息的关键词
                 with Client(ip, port, passwd=pw) as client:
                     response = client.run('status')
                     lines = response.split('\n')
@@ -56,17 +56,21 @@ def on_qq_message(ws, message):
                     NoChan = 0
                     PlayerNum = 0
                     if lineNum > 23:
-                        for i in range(21, lineNum-2):
+                        for i in range(22, lineNum-2):
                             if lines[i].find('BOT') != -1:
                                 BotNum = BotNum + 1
                             elif lines[i].find('[NoChan]') != -1:
                                 NoChan = NoChan + 1
                             else:
                                 PlayerNum = PlayerNum + 1
+                                print(lines[i])
                                 
-                        sendJsonToQQ('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！')
+                        if PlayerNum >= 1:
+                            sendJsonToQQ('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！')
+                        else:
+                            sendJsonToQQun('当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13902')
                     else:
-                        sendJsonToQQ('当前无人在线！按~控制台输入：connect '+serverIp+' 进服')
+                        sendJsonToQQun('当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13902')
 
 def on_qq_error(ws, error):
     print('### QQ机器人服务器出现错误：### ' + str(error))
@@ -90,7 +94,7 @@ def main():
     
 def check_status_forever():
     while True:
-        time.sleep(120)#检测间隔时间一分钟 代码127 128行开启此检测线程
+        time.sleep(7200)#检测间隔时间一分钟 代码127 128行开启此检测线程
         with Client(ip, port, passwd=pw) as client:
             response = client.run('status')
             lines = response.split('\n')
@@ -99,7 +103,7 @@ def check_status_forever():
             NoChan = 0
             PlayerNum = 0
             if lineNum > 23:
-                for i in range(21, lineNum-2):
+                for i in range(22, lineNum-2):
                     if lines[i].find('BOT') != -1:
                         BotNum = BotNum + 1
                     elif lines[i].find('[NoChan]') != -1:
@@ -108,7 +112,7 @@ def check_status_forever():
                         PlayerNum = PlayerNum + 1
                         
                 if PlayerNum >= 1:
-                    sendJsonToQQ('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！')
+                    sendJsonToQQun('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！')
             else:
                 #sendJsonToQQ('服务器当前无人在线！')
                 playerLine = lines[11].split(',')
