@@ -55,18 +55,27 @@ def on_qq_message(ws, message):
                     BotNum = 0
                     NoChan = 0
                     PlayerNum = 0
+                    PlayerList = []
+                    begin = 21
                     if lineNum > 23:
-                        for i in range(22, lineNum-2):
+                        if lines[13].find('de_vertigo') != -1:
+                            begin = 22
+                        for i in range(begin, lineNum-2):#22 -2 
                             if lines[i].find('BOT') != -1:
                                 BotNum = BotNum + 1
                             elif lines[i].find('[NoChan]') != -1:
                                 NoChan = NoChan + 1
                             else:
-                                PlayerNum = PlayerNum + 1
                                 print(lines[i])
+                                playerName = lines[i].split("'")
+                                PlayerList.append(playerName[1])
+                                PlayerNum = PlayerNum + 1
                                 
                         if PlayerNum >= 1:
-                            sendJsonToQQ('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！')
+                            PLString = ' '
+                            for name in PlayerList:
+                                PLString = PLString + name + ' '
+                            sendJsonToQQun('当前在线 '+ str(PlayerNum) +' 人:' + PLString)
                         else:
                             sendJsonToQQun('当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13902')
                     else:
@@ -94,7 +103,7 @@ def main():
     
 def check_status_forever():
     while True:
-        time.sleep(7200)#检测间隔时间一分钟 代码127 128行开启此检测线程
+        time.sleep(1200)#检测间隔时间一分钟 代码127 128行开启此检测线程
         with Client(ip, port, passwd=pw) as client:
             response = client.run('status')
             lines = response.split('\n')
@@ -102,8 +111,11 @@ def check_status_forever():
             BotNum = 0
             NoChan = 0
             PlayerNum = 0
+            begin = 21
             if lineNum > 23:
-                for i in range(22, lineNum-2):
+                if lines[13].find('de_vertigo') != -1:
+                    begin = 22
+                for i in range(begin, lineNum-2):#22 -2
                     if lines[i].find('BOT') != -1:
                         BotNum = BotNum + 1
                     elif lines[i].find('[NoChan]') != -1:
