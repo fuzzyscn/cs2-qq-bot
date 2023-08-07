@@ -37,8 +37,8 @@ def sendJsonToQQun(msg):
 def on_qq_message(ws, message):
     msg = json.loads(message)
     if 'message_type' in msg:
-        print(msg['message_type'].replace('private', '私聊命令')+'||'+msg['sender']['nickname'] + ': '+msg['raw_message'])
-        if msg['message_type'] == 'private':
+        #print(msg['message_type'].replace('private', '私聊命令')+'||'+msg['sender']['nickname'] + ': '+msg['raw_message'])
+        if msg['message_type'] == 'private' and msg['user_id'] == qqNum:
             privateCommand = msg['raw_message']
             with Client(ip, port, passwd=pw) as client:
                 response = client.run(privateCommand)
@@ -46,7 +46,7 @@ def on_qq_message(ws, message):
                 if response:
                     string = ' 返回：' + response
                 sendJsonToQQ('管理员：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
-        elif msg['message_type'] == 'group':
+        elif msg['message_type'] == 'group' and msg['group_id'] == qqQunNum:
             if msg['raw_message'].find('服务器') != -1 :#监测群消息的关键词
                 with Client(ip, port, passwd=pw) as client:
                     response = client.run('status')
@@ -75,6 +75,10 @@ def on_qq_message(ws, message):
                             map = '办公室'
                         elif lines[13].find('de_inferno') != -1:
                             map = '炼狱小镇'
+                        elif lines[13].find('de_anubis') != -1:
+                            map = '阿努比斯'
+                        elif lines[13].find('de_ancient') != -1:
+                            map = '远古遗迹'
                         print(map)
                         for i in range(begin, lineNum-2):#22 -2 
                             if lines[i].find('BOT') != -1:
@@ -93,11 +97,11 @@ def on_qq_message(ws, message):
                                 PLString = PLString + name + ' '
                             sendJsonToQQun('地图：'+map+' 在线 '+ str(PlayerNum) +' 人:' + PLString)
                         else:
-                            sendJsonToQQun('当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13910')
+                            sendJsonToQQun('地图：'+map+' 当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13912')
                     else:
                         print('地图：'+map+'当前无人在线！')
             elif msg['raw_message'].find('ip') != -1:
-                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进服 版本号13910')
+                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进服 版本号13912')
 def on_qq_error(ws, error):
     print('### QQ机器人服务器出现错误：### ' + str(error))
 
@@ -120,7 +124,7 @@ def main():
     
 def check_status_forever():
     while True:
-        time.sleep(600)#检测间隔时间一分钟 代码127 128行开启此检测线程
+        time.sleep(1800)#检测间隔时间一分钟 代码127 128行开启此检测线程
         with Client(ip, port, passwd=pw) as client:
             response = client.run('status')
             lines = response.split('\n')
@@ -147,17 +151,22 @@ def check_status_forever():
                     map = '办公室'
                 elif lines[13].find('de_inferno') != -1:
                     map = '炼狱小镇'
-                print(map)
+                elif lines[13].find('de_anubis') != -1:
+                    map = '阿努比斯'
+                elif lines[13].find('de_ancient') != -1:
+                    map = '远古遗迹'
+                #print(map)
                 for i in range(begin, lineNum-2):#22 -2
                     if lines[i].find('BOT') != -1:
                         BotNum = BotNum + 1
                     elif lines[i].find('[NoChan]') != -1:
                         NoChan = NoChan + 1
                     else:
+                        print(lines[i])
                         PlayerNum = PlayerNum + 1
                         
                 if PlayerNum >= 1:
-                    sendJsonToQQ('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！地图：'+map)
+                    sendJsonToQQun('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！地图：'+map)
             else:
                 playerLine = lines[11].split(',')
                 print('当前假的在线' + playerLine[0].replace('players', '玩家').replace('humans', '人类'))#不确定是否还有用 先留着
