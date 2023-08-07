@@ -19,6 +19,7 @@
 		{
 			Game_LowViolence	csgo_lv // Perfect World content override
 
+			Game	csgo_mods
 			Game	csgo
 			Game	csgo_imported
 			Game	csgo_core
@@ -99,13 +100,13 @@
 		"bone_decode_cache_enabled" "0"
 
 		// Disable warning about oscillating panorama classes
-		"panorama_classes_oscillation_warning" "0"
+		"@panorama_classes_oscillation_warning" "0"
 
 		// Spew warning when adding/removing classes to/from the top of the hierarchy
-		"panorama_classes_perf_warning_threshold_ms" "0.75"
+		"@panorama_classes_perf_warning_threshold_ms" "0.75"
 
 		// Panorama - enable render target cache
-		"panorama_disable_render_target_cache" "0"
+		"@panorama_disable_render_target_cache" "0"
 
 		// Panorama - enable minidumps on JS exceptions
 		"panorama_js_minidumps" "1"
@@ -124,7 +125,7 @@
 		// Default to binding keys based on keyboard position instead of key name
 		"input_button_code_is_scan_code"	"1"
 
-		// Disable Cubemap Brightening
+		//Disable Cubemap Brightening
 		"lb_cubemap_normalization_max" 		"1"
 
 		// For low quality shaders, cubemap bounds are scaled by this percentage of the fade region
@@ -152,18 +153,6 @@
 		"snd_steamaudio_enable_custom_hrtf"					"1"
 		"snd_steamaudio_enable_perspective_correction"		"1"
 		"snd_steamaudio_perspective_correction_factor"		"1.0"
-		"snd_steamaudio_normalize_default_hrtf_volume"		"1"
-		"snd_steamaudio_default_hrtf_volume_gain"			"0.0"
-		"snd_steamaudio_max_hrtf_normalization_gain_db"		"6.0"
-
-		// Need much tighter sound clock sync
-		"snd_delay_sound_ms_max"	"40"
-		
-		"cl_disconnect_voice_fade"	"-1.0"
-		"cl_disconnect_soundevent"	"Music.StopAllExceptMusic"
-		
-		// Physics specific customization
-		"phys_use_position_based_toi_test" "1"
 	}
 
 	// Temporarily allowing this because the particle files that are tripping this up ALSO crash PET so I 
