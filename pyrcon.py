@@ -56,14 +56,13 @@ def on_qq_message(ws, message):
                     NoChan = 0
                     PlayerNum = 0
                     PlayerList = []
-                    begin = 21
+                    begin = 23
                     map = '暂无'
                     if lineNum > 23:
                         if lines[13].find('de_nuke') != -1:
-                            begin = 22
+                            begin = 24
                             map = '核子危机'
                         elif lines[13].find('de_vertigo') != -1:
-                            begin = 22
                             map = '陨命大厦'
                         elif lines[13].find('de_dust2') != -1:
                             map = '炙热沙城II'
@@ -79,6 +78,8 @@ def on_qq_message(ws, message):
                             map = '阿努比斯'
                         elif lines[13].find('de_ancient') != -1:
                             map = '远古遗迹'
+                        elif lines[13].find('cs_italy') != -1:
+                            map = '意大利小镇'
                         print(map)
                         for i in range(begin, lineNum-2):#22 -2 
                             if lines[i].find('BOT') != -1:
@@ -97,11 +98,11 @@ def on_qq_message(ws, message):
                                 PLString = PLString + name + ' '
                             sendJsonToQQun('地图：'+map+' 在线 '+ str(PlayerNum) +' 人:' + PLString)
                         else:
-                            sendJsonToQQun('地图：'+map+' 当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13912')
+                            sendJsonToQQun('地图：'+map+' 当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13922')
                     else:
                         print('地图：'+map+'当前无人在线！')
             elif msg['raw_message'].find('ip') != -1:
-                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进服 版本号13912')
+                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进服 版本号13922')
 def on_qq_error(ws, error):
     print('### QQ机器人服务器出现错误：### ' + str(error))
 
@@ -124,7 +125,7 @@ def main():
     
 def check_status_forever():
     while True:
-        time.sleep(1800)#检测间隔时间一分钟 代码127 128行开启此检测线程
+        time.sleep(1800)#检测间隔时间10分钟 代码127 128行开启此检测线程
         with Client(ip, port, passwd=pw) as client:
             response = client.run('status')
             lines = response.split('\n')
@@ -132,14 +133,13 @@ def check_status_forever():
             BotNum = 0
             NoChan = 0
             PlayerNum = 0
-            begin = 21
+            begin = 23
             map = '暂无'
             if lineNum > 23:
                 if lines[13].find('de_nuke') != -1:
-                    begin = 22
+                    begin = 24
                     map = '核子危机'
                 elif lines[13].find('de_vertigo') != -1:
-                    begin = 22
                     map = '陨命大厦'
                 elif lines[13].find('de_dust2') != -1:
                     map = '炙热沙城II'
@@ -155,6 +155,8 @@ def check_status_forever():
                     map = '阿努比斯'
                 elif lines[13].find('de_ancient') != -1:
                     map = '远古遗迹'
+                elif lines[13].find('cs_italy') != -1:
+                    map = '意大利小镇'
                 #print(map)
                 for i in range(begin, lineNum-2):#22 -2
                     if lines[i].find('BOT') != -1:
