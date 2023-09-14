@@ -6,11 +6,22 @@ from rcon.source import Client
 
 ip = '101.35.246.92'
 port = 27015
-pw = 'rconpassword'#rcon密码
+pw = ''#rcon密码
 
-qqNum = 2561417364
+qqNum = 913803796#2561417364
 qqQunNum = 314498023
-serverIp = 'fuzzys点f3322点net'
+serverIp = '101点35点246点92'
+
+def sendJsonToQQ256(msg):
+    msgData = {
+        "action": "send_private_msg",
+        "params": {
+            "user_id": 2561417364,
+            "message": msg
+        },
+        #"echo": "123"
+    }
+    wsQQ.send(json.dumps(msgData))
 
 def sendJsonToQQ(msg):
     msgData = {
@@ -46,6 +57,14 @@ def on_qq_message(ws, message):
                 if response:
                     string = ' 返回：' + response
                 sendJsonToQQ('管理员：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
+        elif msg['message_type'] == 'private' and msg['user_id'] == 2561417364:
+            privateCommand = msg['raw_message']
+            with Client(ip, port, passwd=pw) as client:
+                response = client.run(privateCommand)
+                string = ''
+                if response:
+                    string = ' 返回：' + response
+                sendJsonToQQ256('服主：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
         elif msg['message_type'] == 'group' and msg['group_id'] == qqQunNum:
             if msg['raw_message'].find('服务器') != -1 :#监测群消息的关键词
                 with Client(ip, port, passwd=pw) as client:
@@ -60,19 +79,22 @@ def on_qq_message(ws, message):
                     map = '暂无'
                     if lineNum > 23:
                         if lines[13].find('de_nuke') != -1:
-                            begin = 24
+                            begin = 25
                             map = '核子危机'
                         elif lines[13].find('de_vertigo') != -1:
+                            begin = 25
                             map = '陨命大厦'
                         elif lines[13].find('de_dust2') != -1:
                             map = '炙热沙城II'
                         elif lines[13].find('de_overpass') != -1:
+                            begin = 25
                             map = '死亡游乐园'
                         elif lines[13].find('de_mirage') != -1:
                             map = '荒漠迷城'
                         elif lines[13].find('cs_office') != -1:
                             map = '办公室'
                         elif lines[13].find('de_inferno') != -1:
+                            begin = 24
                             map = '炼狱小镇'
                         elif lines[13].find('de_anubis') != -1:
                             map = '阿努比斯'
@@ -98,11 +120,11 @@ def on_qq_message(ws, message):
                                 PLString = PLString + name + ' '
                             sendJsonToQQun('地图：'+map+' 在线 '+ str(PlayerNum) +' 人:' + PLString)
                         else:
-                            sendJsonToQQun('地图：'+map+' 当前无人在线！按~控制台输入：connect '+serverIp+' 进服 版本号13922')
+                            sendJsonToQQun('地图：'+map+' 当前无人在线！按~控制台输入：connect '+serverIp+' 进跑图服 版本号13938')
                     else:
                         print('地图：'+map+'当前无人在线！')
             elif msg['raw_message'].find('ip') != -1:
-                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进服 版本号13922')
+                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进跑图服 版本号13938')
 def on_qq_error(ws, error):
     print('### QQ机器人服务器出现错误：### ' + str(error))
 
@@ -120,12 +142,12 @@ def main():
             string = ''
             if response:
                 string = ' 返回：'+response
-            sendJsonToQQ('后台使用了命令：'+msg+string)
+            sendJsonToQQ256('后台使用了命令：'+msg+string)
     main()
     
 def check_status_forever():
     while True:
-        time.sleep(1800)#检测间隔时间10分钟 代码127 128行开启此检测线程
+        time.sleep(60)#检测间隔时间1分钟 代码127 128行开启此检测线程
         with Client(ip, port, passwd=pw) as client:
             response = client.run('status')
             lines = response.split('\n')
@@ -137,19 +159,22 @@ def check_status_forever():
             map = '暂无'
             if lineNum > 23:
                 if lines[13].find('de_nuke') != -1:
-                    begin = 24
+                    begin = 25
                     map = '核子危机'
                 elif lines[13].find('de_vertigo') != -1:
+                    begin = 25
                     map = '陨命大厦'
                 elif lines[13].find('de_dust2') != -1:
                     map = '炙热沙城II'
                 elif lines[13].find('de_overpass') != -1:
+                    begin = 25
                     map = '死亡游乐园'
                 elif lines[13].find('de_mirage') != -1:
                     map = '荒漠迷城'
                 elif lines[13].find('cs_office') != -1:
                     map = '办公室'
                 elif lines[13].find('de_inferno') != -1:
+                    begin = 24
                     map = '炼狱小镇'
                 elif lines[13].find('de_anubis') != -1:
                     map = '阿努比斯'
@@ -168,7 +193,12 @@ def check_status_forever():
                         PlayerNum = PlayerNum + 1
                         
                 if PlayerNum >= 1:
-                    sendJsonToQQun('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！地图：'+map)
+                    #sendJsonToQQ256('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！地图：'+map)
+                    response = client.run('sv_cheats')
+                    if response.find('false') != -1:
+                        client.run('exec sb')
+                        client.run('hostname CS2 Fuzzys 跑图服 CHINA上海 QQ群:314498023')
+                        sendJsonToQQ256('已开启跑图模式')
             else:
                 playerLine = lines[11].split(',')
                 print('当前假的在线' + playerLine[0].replace('players', '玩家').replace('humans', '人类'))#不确定是否还有用 先留着
