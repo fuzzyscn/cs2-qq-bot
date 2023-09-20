@@ -1,3 +1,3 @@
 @echo off
-python "pyrcon.py" %*
+python "pyrcon-noQQbot.py" %*
 pause

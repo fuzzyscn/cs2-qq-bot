@@ -6,28 +6,29 @@ from rcon.source import Client
 
 ip = '101.35.246.92'
 port = 27015
-pw = ''#rcon密码
+pw = ''#自行修改rcon密码
 
-qqNum = 913803796#2561417364
+adminQqNum = 913803796
+fuZhuQqNum = 2561417364
 qqQunNum = 314498023
 serverIp = '101点35点246点92'
 
-def sendJsonToQQ256(msg):
+def sendJsonToFuzhuQQ(msg):#通知服主
     msgData = {
         "action": "send_private_msg",
         "params": {
-            "user_id": 2561417364,
+            "user_id": fuZhuQqNum,
             "message": msg
         },
         #"echo": "123"
     }
     wsQQ.send(json.dumps(msgData))
 
-def sendJsonToQQ(msg):
+def sendJsonToAdminQQ(msg):#通知管理员
     msgData = {
         "action": "send_private_msg",
         "params": {
-            "user_id": qqNum,
+            "user_id": adminQqNum,
             "message": msg
         },
         #"echo": "123"
@@ -49,22 +50,22 @@ def on_qq_message(ws, message):
     msg = json.loads(message)
     if 'message_type' in msg:
         #print(msg['message_type'].replace('private', '私聊命令')+'||'+msg['sender']['nickname'] + ': '+msg['raw_message'])
-        if msg['message_type'] == 'private' and msg['user_id'] == qqNum:
+        if msg['message_type'] == 'private' and msg['user_id'] == adminQqNum:
             privateCommand = msg['raw_message']
             with Client(ip, port, passwd=pw) as client:
                 response = client.run(privateCommand)
                 string = ''
                 if response:
                     string = ' 返回：' + response
-                sendJsonToQQ('管理员：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
-        elif msg['message_type'] == 'private' and msg['user_id'] == 2561417364:
+                sendJsonToAdminQQ('管理员：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
+        elif msg['message_type'] == 'private' and msg['user_id'] == fuZhuQqNum:
             privateCommand = msg['raw_message']
             with Client(ip, port, passwd=pw) as client:
                 response = client.run(privateCommand)
                 string = ''
                 if response:
                     string = ' 返回：' + response
-                sendJsonToQQ256('服主：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
+                sendJsonToFuzhuQQ('服主：'+msg['sender']['nickname']+' 使用了命令:'+privateCommand+string)
         elif msg['message_type'] == 'group' and msg['group_id'] == qqQunNum:
             if msg['raw_message'].find('服务器') != -1 :#监测群消息的关键词
                 with Client(ip, port, passwd=pw) as client:
@@ -120,11 +121,11 @@ def on_qq_message(ws, message):
                                 PLString = PLString + name + ' '
                             sendJsonToQQun('地图：'+map+' 在线 '+ str(PlayerNum) +' 人:' + PLString)
                         else:
-                            sendJsonToQQun('地图：'+map+' 当前无人在线！按~控制台输入：connect '+serverIp+' 进跑图服 版本号13938')
+                            sendJsonToQQun('地图：'+map+' 当前无人在线！按~控制台输入：connect '+serverIp+' 进跑图服 版本号13942')
                     else:
                         print('地图：'+map+'当前无人在线！')
             elif msg['raw_message'].find('ip') != -1:
-                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进跑图服 版本号13938')
+                sendJsonToQQun('按~控制台输入：connect '+serverIp+' 进跑图服 版本号13942')
 def on_qq_error(ws, error):
     print('### QQ机器人服务器出现错误：### ' + str(error))
 
@@ -135,21 +136,22 @@ def on_qq_open(ws):
     print('\n ### QQ机器人连接成功啦！###')
     
 def main():
-    msg = input("更换命令 例如:bot_add bot_kick:")
+    msg = input("输入命令 例如:bot_add bot_kick:")
     if msg != '':
         with Client(ip, port, passwd=pw) as client:
             response = client.run(msg)
             string = ''
             if response:
                 string = ' 返回：'+response
-            sendJsonToQQ256('后台使用了命令：'+msg+string)
+            sendJsonToFuzhuQQ('后台使用了命令：'+msg+string)
+            #print('后台使用了命令：'+msg+string)
     main()
     
 def check_status_forever():
     while True:
-        time.sleep(60)#检测间隔时间1分钟 代码127 128行开启此检测线程
+        time.sleep(120)#检测间隔时间2分钟 检测时间过短可能会在换地图期间出bug
         with Client(ip, port, passwd=pw) as client:
-            response = client.run('status')
+            response = client.run('status')#利用status命令获取在线人数等信息
             lines = response.split('\n')
             lineNum = len(lines)
             BotNum = 0
@@ -159,7 +161,7 @@ def check_status_forever():
             map = '暂无'
             if lineNum > 23:
                 if lines[13].find('de_nuke') != -1:
-                    begin = 25
+                    begin = 25#处理部分status输出长短不一致问题
                     map = '核子危机'
                 elif lines[13].find('de_vertigo') != -1:
                     begin = 25
@@ -193,12 +195,14 @@ def check_status_forever():
                         PlayerNum = PlayerNum + 1
                         
                 if PlayerNum >= 1:
-                    #sendJsonToQQ256('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！地图：'+map)
+                    sendJsonToFuzhuQQ('当前在线 '+ str(PlayerNum) +' 人，BOT:' + str(BotNum) + '个！地图：'+map)
                     response = client.run('sv_cheats')
                     if response.find('false') != -1:
                         client.run('exec sb')
                         client.run('hostname CS2 Fuzzys 跑图服 CHINA上海 QQ群:314498023')
-                        sendJsonToQQ256('已开启跑图模式')
+                        client.run('say 欢迎游玩Fuzzys的上海跑图服 QQ群:314498023')
+                        client.run('say 已为您开启跑图模式，可自行投票换地图哦🐀')
+                        print('已开启跑图模式')
             else:
                 playerLine = lines[11].split(',')
                 print('当前假的在线' + playerLine[0].replace('players', '玩家').replace('humans', '人类'))#不确定是否还有用 先留着
